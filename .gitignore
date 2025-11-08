@@ -150,3 +150,4 @@ logs/
 *.json
 *.csv
 *.pkl
+/data
