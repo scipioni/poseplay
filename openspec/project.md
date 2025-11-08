@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-PosePlay is a Python-based application for real-time pose detection and camera-aware fall detection. The project aims to provide an efficient, GPU-accelerated solution for monitoring human poses from video feeds, with a focus on detecting falls to enhance safety in environments like homes or care facilities. It leverages advanced computer vision models to process camera input and alert on potential fall events.
+PosePlay is a Python-based application for image processing. 
 
 ## Tech Stack
 - **Language**: Python 3.7+
@@ -9,7 +9,6 @@ PosePlay is a Python-based application for real-time pose detection and camera-a
   - PyTorch (for deep learning and GPU acceleration)
   - OpenCV (for computer vision and image processing)
   - Ultralytics YOLO (for pose detection)
-  - MediaPipe (for pose estimation and tracking)
   - NumPy (for numerical computations)
   - scikit-learn (for machine learning utilities)
 - **Configuration**: PyYAML (for configuration management)
@@ -32,7 +31,7 @@ PosePlay is a Python-based application for real-time pose detection and camera-a
 - **Docstrings**: Use Google-style docstrings for functions and classes
 
 ### Architecture Patterns
-- **Modular Design**: Single responsibility principle with separate modules for pose detection, fall detection, and camera handling
+- **Modular Design**: Single responsibility principle with separate modules for image processing, annotating imagf and camera handling
 - **Pipeline Architecture**: Data flows through detection → processing → alerting stages
 - **GPU Acceleration**: Leverage PyTorch and CUDA for model inference
 - **Configuration-Driven**: Use YAML for runtime configuration without code changes
@@ -57,7 +56,6 @@ PosePlay is a Python-based application for real-time pose detection and camera-a
 
 ## Domain Context
 - **Computer Vision**: Understanding of pose estimation, keypoint detection, and human pose analysis
-- **Fall Detection**: Knowledge of fall patterns, camera perspectives, and safety monitoring systems
 - **Real-time Processing**: Requirements for low-latency video processing and GPU acceleration
 - **Camera Systems**: Familiarity with camera calibration, field of view, and perspective correction
 - **Machine Learning Models**: Experience with YOLO architecture and MediaPipe pose estimation
