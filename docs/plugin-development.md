@@ -54,7 +54,7 @@ Each plugin must provide metadata including:
 - `name`: Unique identifier for the plugin
 - `version`: Version string (e.g., "1.0.0")
 - `description`: Human-readable description
-- `capabilities`: List of capabilities (currently only "image_processor")
+- `capabilities`: List of capabilities (e.g., "image_processor", "pose_detector")
 
 ### Processing Pipeline
 
@@ -73,6 +73,8 @@ Plugins are automatically discovered from the `plugins/` directory. The system l
 ## Example Plugin
 
 See `plugins/example_plugin.py` for a complete example that adds overlay text to frames.
+
+See `plugins/yolo_pose_plugin.py` for an example of a pose detection plugin that uses YOLO to detect human poses and annotate frames with keypoints and skeleton connections.
 
 ## Development Tips
 
