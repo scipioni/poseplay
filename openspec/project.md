@@ -47,7 +47,7 @@ PosePlay is a Python-based application for real-time pose detection and camera-a
   - Unit tests for individual functions and classes
   - Integration tests for pipeline components
   - Mock external dependencies (camera, models) for CI/CD
-- **CI/CD**: Run tests on every commit with GitHub Actions or similar
+- **Containerization**: run python commands with "docker compose run --rm pose <command>"
 
 ### Git Workflow
 - **Branching Strategy**: Git Flow with main/master as production, develop for integration, feature branches for new work
@@ -68,7 +68,7 @@ PosePlay is a Python-based application for real-time pose detection and camera-a
 - **Performance**: Must process video at real-time rates (30+ FPS) for effective fall detection
 - **Privacy**: Handle video data securely, avoid unnecessary storage of sensitive footage
 - **Resource Usage**: Balance model accuracy with computational efficiency for edge deployment
-- **Containerization**: run project with "docker compose run --rm pose <command>"
+- **Containerization**: run python commands with "docker compose run --rm pose <command>"
 
 ## External Dependencies
 - **YOLO Model**: Pre-trained YOLO11m pose model (yolo11m-pose.pt) for pose detection
