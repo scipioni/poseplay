@@ -1,0 +1,20 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  cli:
+    cmds:
+      - xhost +local:docker
+      - mkdir -p runtime
+      - touch runtime/bash_history
+      - docker compose run --rm pose
+    silent: true
