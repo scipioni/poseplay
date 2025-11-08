@@ -1,7 +1,7 @@
 """Configuration module for poseplay CLI."""
 
 import argparse
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 class Config:
@@ -12,6 +12,9 @@ class Config:
         self.fps: float = 30.0
         self.max_retries: int = 3
         self.loop: bool = False
+        self.plugins_dir: str = "plugins"
+        self.enabled_plugins: List[str] = []
+        self.plugin_config: Dict[str, Any] = {}
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "Config":
@@ -21,6 +24,8 @@ class Config:
         config.fps = args.fps
         config.max_retries = args.max_retries
         config.loop = args.loop
+        config.plugins_dir = getattr(args, 'plugins_dir', 'plugins')
+        config.enabled_plugins = getattr(args, 'enabled_plugins', [])
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -62,6 +67,17 @@ def create_parser() -> argparse.ArgumentParser:
         "--loop",
         action="store_true",
         help="Loop continuously (restart when source ends)",
+    )
+    grab_parser.add_argument(
+        "--plugins-dir",
+        default="plugins",
+        help="Directory containing plugins (default: plugins)",
+    )
+    grab_parser.add_argument(
+        "--enabled-plugins",
+        nargs="*",
+        default=[],
+        help="List of enabled plugin names (default: all discovered plugins)",
     )
 
     return parser

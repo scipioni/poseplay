@@ -6,6 +6,7 @@ import cv2
 
 from .config import parse_args, Config
 from .image_grabber import ImageGrabberFactory, RTSPGrabber
+from .plugins import PluginLoader
 
 
 def display_frame(frame, window_name: str = "PosePlay"):
@@ -14,7 +15,7 @@ def display_frame(frame, window_name: str = "PosePlay"):
     return cv2.waitKey(1) & 0xFF
 
 
-def grab_and_display_loop(config: Config):
+def grab_and_display_loop(config: Config, plugin_loader: PluginLoader):
     """Main loop for grabbing and displaying frames."""
     try:
         grabber = ImageGrabberFactory.create(
@@ -57,7 +58,15 @@ def grab_and_display_loop(config: Config):
                         print("Reached end of source")
                         break
 
-                key = display_frame(frame)
+                # Process frame through plugins
+                processed_frame = frame
+                for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
+                    try:
+                        processed_frame = plugin.process_frame(processed_frame)
+                    except Exception as e:
+                        print(f"Plugin {plugin.metadata.name} failed: {e}")
+
+                key = display_frame(processed_frame)
                 if key == ord("q") or key == 27:  # q or ESC
                     break
                 elif key == ord("p") or key == 32:  # p or space
@@ -93,7 +102,17 @@ def main():
     """Main entry point."""
     try:
         config = parse_args()
-        grab_and_display_loop(config)
+
+        # Initialize plugin system
+        plugin_loader = PluginLoader(config.plugins_dir)
+        plugin_loader.load_all_plugins()
+        plugin_loader.registry.initialize_all()
+
+        try:
+            grab_and_display_loop(config, plugin_loader)
+        finally:
+            plugin_loader.registry.cleanup_all()
+
     except SystemExit:
         pass  # argparse handles help and errors
     except Exception as e:
