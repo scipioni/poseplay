@@ -34,7 +34,7 @@ WORKDIR /workspace
 
 # Install Python packages
 RUN pip install --upgrade pip && \
-    pip install opencv-python-headless ultralytics pyyaml numpy
+    pip install opencv-python-headless ultralytics pyyaml numpy pytest
 
 # Install the yoloplay package in development mode
 COPY . /workspace/poseplay
