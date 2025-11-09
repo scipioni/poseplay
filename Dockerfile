@@ -49,6 +49,7 @@ ENV PYTHONUNBUFFERED=1
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV CUDA_HOME=/usr/local/cuda
+ENV YOLO_CONFIG_DIR=/tmp
 
 # Copy Python environment from builder
 COPY --from=builder /opt/conda /opt/conda
