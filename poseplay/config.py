@@ -17,6 +17,8 @@ class Config:
         self.save: bool = False
         self.enabled_plugins: List[str] = []
         self.plugin_config: Dict[str, Any] = {}
+        self.svm: str = ""
+
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "Config":
@@ -29,6 +31,7 @@ class Config:
         config.plugins_dir = getattr(args, 'plugins_dir', 'plugins')
         config.enabled_plugins = getattr(args, 'enabled_plugins', [])
         config.save = args.save
+        config.svm = args.svm
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -91,6 +94,11 @@ def create_parser() -> argparse.ArgumentParser:
         "--debug",
         action="store_true",
         help="debug mode for logging (default: INFO)",
+    )
+    grab_parser.add_argument(
+        "--svm",
+        default="",
+        help="svm model file for pose detection",
     )
     return parser
 

@@ -9,6 +9,7 @@ from .image_grabber import ImageGrabberFactory, RTSPGrabber
 #from .plugins import PluginLoader
 from .lib.yolo_pose_plugin import YOLOPosePlugin
 from .lib.keypoints_save_plugin import KeypointsSavePlugin
+from .lib.svm_anomaly_plugin import SVMAnomalyPlugin
 
 def display_frame(frame, window_name: str = "PosePlay"):
     """Display frame in OpenCV window."""
@@ -42,6 +43,8 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
     yolopose =  YOLOPosePlugin()
     if config.save:
         saveplugin = KeypointsSavePlugin(config.source)
+    if config.svm:
+        svmanomaly = SVMAnomalyPlugin(config.svm)
     
     try:
         while running:
@@ -70,6 +73,9 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
                     for pose in poses:
                         #print("xxx", pose["xy"])
                         saveplugin.add(pose["xy"])
+
+                if config.svm:
+                    processed_frame, anomalies = svmanomaly.process_frame(processed_frame, poses)
                 # for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
                 #     try:
                 #         processed_frame = plugin.process_frame(processed_frame)
