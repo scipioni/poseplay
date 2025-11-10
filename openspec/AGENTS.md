@@ -111,6 +111,14 @@ openspec show [change] --json --deltas-only
 openspec validate [change] --strict
 ```
 
+## Running the Project with Docker
+
+To run the project using Docker, use the following command:
+
+```bash
+docker compose run --rm pose <command>
+```
+
 ### Command Flags
 
 - `--json` - Machine-readable output

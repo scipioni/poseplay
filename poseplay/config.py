@@ -13,6 +13,7 @@ class Config:
         self.max_retries: int = 3
         self.loop: bool = False
         self.plugins_dir: str = "plugins"
+        self.save: bool = False
         self.enabled_plugins: List[str] = []
         self.plugin_config: Dict[str, Any] = {}
 
@@ -26,6 +27,7 @@ class Config:
         config.loop = args.loop
         config.plugins_dir = getattr(args, 'plugins_dir', 'plugins')
         config.enabled_plugins = getattr(args, 'enabled_plugins', [])
+        config.save = args.save
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -79,7 +81,11 @@ def create_parser() -> argparse.ArgumentParser:
         default=[],
         help="List of enabled plugin names (default: all discovered plugins)",
     )
-
+    grab_parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Loop continuously (restart when source ends)",
+    )
     return parser
 
 

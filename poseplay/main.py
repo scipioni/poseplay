@@ -6,8 +6,9 @@ import cv2
 
 from .config import parse_args, Config
 from .image_grabber import ImageGrabberFactory, RTSPGrabber
-from .plugins import PluginLoader
-
+#from .plugins import PluginLoader
+from .lib.yolo_pose_plugin import YOLOPosePlugin
+from .lib.keypoints_save_plugin import KeypointsSavePlugin
 
 def display_frame(frame, window_name: str = "PosePlay"):
     """Display frame in OpenCV window."""
@@ -15,7 +16,7 @@ def display_frame(frame, window_name: str = "PosePlay"):
     return cv2.waitKey(1) & 0xFF
 
 
-def grab_and_display_loop(config: Config, plugin_loader: PluginLoader):
+def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
     """Main loop for grabbing and displaying frames."""
     try:
         grabber = ImageGrabberFactory.create(
@@ -38,6 +39,9 @@ def grab_and_display_loop(config: Config, plugin_loader: PluginLoader):
         )
     )
 
+    yolopose =  YOLOPosePlugin()
+    save = KeypointsSavePlugin(config.source)
+    
     try:
         while running:
             if not paused:
@@ -59,12 +63,17 @@ def grab_and_display_loop(config: Config, plugin_loader: PluginLoader):
                         break
 
                 # Process frame through plugins
-                processed_frame = frame
-                for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
-                    try:
-                        processed_frame = plugin.process_frame(processed_frame)
-                    except Exception as e:
-                        print(f"Plugin {plugin.metadata.name} failed: {e}")
+                processed_frame, poses = yolopose.process_frame(frame)
+
+                if config.save:
+                    for keypoint in poses["keypoints"]:
+                        save.set_keypoints(keypoint)
+                # for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
+                #     try:
+                #         processed_frame = plugin.process_frame(processed_frame)
+                #     except Exception as e:
+                #         print(f"Plugin {plugin.metadata.name} failed: {e}")
+
 
                 key = display_frame(processed_frame)
                 if key == ord("q") or key == 27:  # q or ESC
@@ -104,14 +113,15 @@ def main():
         config = parse_args()
 
         # Initialize plugin system
-        plugin_loader = PluginLoader(config.plugins_dir)
-        plugin_loader.load_all_plugins()
-        plugin_loader.registry.initialize_all()
+        # plugin_loader = PluginLoader(config.plugins_dir)
+        # plugin_loader.load_all_plugins()
+        # plugin_loader.registry.initialize_all()
 
         try:
-            grab_and_display_loop(config, plugin_loader)
+            grab_and_display_loop(config) #, plugin_loader)
         finally:
-            plugin_loader.registry.cleanup_all()
+            pass 
+            #plugin_loader.registry.cleanup_all()
 
     except SystemExit:
         pass  # argparse handles help and errors
