@@ -5,13 +5,19 @@ A flexible pose detection application that supports various image input sources 
 
 ```
 # create data/rooms/termica.csv
-pose grab data/rooms/termica.mkv --save 
+pose grab data/rooms/termica.mkv --save
 
-# create data/rooms/termica.pkl
-svmtrain --csv data/rooms/termica.csv --grid-search 
+# create data/rooms/termica.pkl (SVM model)
+svmtrain --csv data/rooms/termica.csv --grid-search
 
-# detect anomalies
+# create data/rooms/termica.pth (Autoencoder model)
+autoencodertrain --csv data/rooms/termica.csv --latent-dim 16 --epochs 100
+
+# detect anomalies with SVM
 pose grab data/rooms/termica.mkv --svm data/rooms/termica.pkl
+
+# detect anomalies with autoencoder
+pose grab data/rooms/termica.mkv --autoencoder data/rooms/termica.pth
 ```
 
 
@@ -23,10 +29,28 @@ pose grab data/rooms/termica.mkv --svm data/rooms/termica.pkl
 - **Real-time Processing**: Frame-by-frame processing with configurable frame rates
 - **Plugin System**: Extensible plugin architecture for custom image processing
 - **Pose Detection**: YOLO-based human pose estimation with keypoint detection
-- **Anomaly Detection**: SVM-based pose anomaly detection for fall detection and unusual pose identification
+- **Anomaly Detection**: SVM-based and autoencoder-based pose anomaly detection for fall detection and unusual pose identification
 - **Keypoint Saving**: CSV export of detected pose keypoints for training and analysis
 - **CLI Interface**: Command-line interface for easy integration
 - **Keyboard Controls**: Interactive controls for pause, resume, and reset operations
+
+## CSV Format for Training Data
+
+The training data for anomaly detection models should be in CSV format with the following structure:
+
+- **Format**: Each row represents a single pose
+- **Columns**: 34 numeric values representing 17 keypoints (x1,y1,x2,y2,...,x17,y17)
+- **Data Type**: Float values representing keypoint coordinates
+- **Header**: No header row (data starts immediately)
+
+Example CSV structure:
+```
+0.5,0.3,0.6,0.4,0.4,0.2,...  # First pose keypoints
+0.7,0.5,0.8,0.6,0.5,0.3,...  # Second pose keypoints
+...
+```
+
+This format is used by both SVM and autoencoder training commands.
 
 ## Installation
 
@@ -65,7 +89,8 @@ python -m poseplay grab rtsp://example.com/stream
 - `--loop`: Loop continuously when source ends (restarts from beginning)
 - `--plugins LIST`: Comma-separated list of plugins to load (e.g., yolo_pose_plugin,svm_anomaly_plugin)
 - `--save`: Save pose keypoints to CSV file
-- `--model-path PATH`: Path to pre-trained SVM anomaly detection model
+- `--svm PATH`: Path to pre-trained SVM anomaly detection model
+- `--autoencoder PATH`: Path to pre-trained autoencoder anomaly detection model
 
 ### Plugins
 
@@ -74,26 +99,52 @@ PosePlay supports extensible plugins for various image processing tasks:
 - **yolo_pose_plugin**: Detects human poses using YOLO and annotates frames with keypoints and skeleton
 - **keypoints_save_plugin**: Saves detected pose keypoints to CSV files for training
 - **svm_anomaly_plugin**: Uses One-Class SVM to detect anomalous poses in real-time
+- **autoencoder_anomaly_plugin**: Uses autoencoder neural network to detect anomalous poses by reconstruction error
 
-### SVM Anomaly Detection
+### Anomaly Detection
+
+PosePlay supports two anomaly detection approaches: SVM-based and autoencoder-based.
+
+#### SVM Anomaly Detection
 
 Train an anomaly detection model from normal pose data:
 
 ```bash
 # 1. Collect normal pose keypoints
-python -m poseplay grab video.mp4 --plugins yolo_pose_plugin,keypoints_save_plugin --save
+python -m poseplay grab video.mp4 --save
 
 # 2. Train SVM model on collected keypoints
 python poseplay/svm.py --csv keypoints.csv --model-path anomaly_model.pkl --grid-search
 
 # 3. Use trained model for real-time anomaly detection
-python -m poseplay grab rtsp://camera/stream --plugins yolo_pose_plugin,svm_anomaly_plugin --model-path anomaly_model.pkl
+python -m poseplay grab rtsp://camera/stream --svm anomaly_model.pkl
 ```
 
 SVM Parameters:
 - `--nu FLOAT`: Anomaly parameter (0 < nu <= 1, default: 0.1)
 - `--kernel STR`: Kernel type (rbf, linear, poly, sigmoid, default: rbf)
 - `--gamma STR`: Kernel coefficient (scale, auto, or float, default: scale)
+
+#### Autoencoder Anomaly Detection
+
+Train an autoencoder model for anomaly detection:
+
+```bash
+# 1. Collect normal pose keypoints (same as SVM)
+python -m poseplay grab video.mp4 --save
+
+# 2. Train autoencoder model on collected keypoints
+python -m poseplay.autoencoder --csv keypoints.csv --model-path autoencoder_model.pth --latent-dim 16 --epochs 100
+
+# 3. Use trained model for real-time anomaly detection
+python -m poseplay grab rtsp://camera/stream --autoencoder autoencoder_model.pth
+```
+
+Autoencoder Parameters:
+- `--latent-dim INT`: Dimension of latent space (default: 16)
+- `--learning-rate FLOAT`: Learning rate for training (default: 0.001)
+- `--epochs INT`: Number of training epochs (default: 100)
+- `--batch-size INT`: Batch size for training (default: 32)
 
 ### Keyboard Controls
 
@@ -119,10 +170,12 @@ poseplay/
 ├── image_grabber.py     # Core image grabbing functionality
 ├── plugins.py           # Plugin system implementation
 ├── svm.py               # SVM anomaly detection utilities
+├── autoencoder.py       # Autoencoder anomaly detection utilities
 └── lib/
     ├── yolo_pose_plugin.py      # YOLO pose detection plugin
     ├── keypoints_save_plugin.py # Keypoints CSV saving plugin
-    └── svm_anomaly_plugin.py    # SVM anomaly detection plugin
+    ├── svm_anomaly_plugin.py    # SVM anomaly detection plugin
+    └── autoencoder_anomaly_plugin.py # Autoencoder anomaly detection plugin
 
 docs/
 └── plugin-development.md # Plugin development guide
@@ -130,7 +183,8 @@ docs/
 tests/
 ├── test_image_grabber.py     # Unit tests for image grabber
 ├── test_plugins.py          # Unit tests for plugin system
-└── test_svm_anomaly_plugin.py # Unit tests for SVM anomaly plugin
+├── test_svm_anomaly_plugin.py # Unit tests for SVM anomaly plugin
+└── test_autoencoder_anomaly_plugin.py # Unit tests for autoencoder anomaly plugin
 ```
 
 ## Contributing

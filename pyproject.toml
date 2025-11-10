@@ -46,3 +46,4 @@ Repository = "https://github.com/yourusername/yolopose-vertical-mapper"
 [project.scripts]
 pose = "poseplay.main:main"
 svmtrain = "poseplay.svm:main"
+autoencodertrain = "poseplay.autoencoder:main"

@@ -18,6 +18,7 @@ class Config:
         self.enabled_plugins: List[str] = []
         self.plugin_config: Dict[str, Any] = {}
         self.svm: str = ""
+        self.autoencoder: str = ""
 
 
     @classmethod
@@ -32,6 +33,7 @@ class Config:
         config.enabled_plugins = getattr(args, 'enabled_plugins', [])
         config.save = args.save
         config.svm = args.svm
+        config.autoencoder = args.autoencoder
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -99,6 +101,11 @@ def create_parser() -> argparse.ArgumentParser:
         "--svm",
         default="",
         help="svm model file for pose detection",
+    )
+    grab_parser.add_argument(
+        "--autoencoder",
+        default="",
+        help="autoencoder model file for pose anomaly detection",
     )
     return parser
 

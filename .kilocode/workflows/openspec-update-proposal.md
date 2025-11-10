@@ -1,1 +1,1 @@
-update acceptance criteria for this proposal
+update spec and tasks for this proposal
