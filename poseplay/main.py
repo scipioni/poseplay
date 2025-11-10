@@ -40,7 +40,8 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
     )
 
     yolopose =  YOLOPosePlugin()
-    save = KeypointsSavePlugin(config.source)
+    if config.save:
+        saveplugin = KeypointsSavePlugin(config.source)
     
     try:
         while running:
@@ -66,8 +67,9 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
                 processed_frame, poses = yolopose.process_frame(frame)
 
                 if config.save:
-                    for keypoint in poses["keypoints"]:
-                        save.set_keypoints(keypoint)
+                    for pose in poses:
+                        #print("xxx", pose["xy"])
+                        saveplugin.add(pose["xy"])
                 # for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
                 #     try:
                 #         processed_frame = plugin.process_frame(processed_frame)
@@ -103,6 +105,8 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
     except KeyboardInterrupt:
         print("\nInterrupted by user")
     finally:
+        if config.save:
+            saveplugin.cleanup()
         grabber.close()
         cv2.destroyAllWindows()
 

@@ -2,6 +2,7 @@
 
 import argparse
 from typing import Any, Dict, List
+import logging
 
 
 class Config:
@@ -86,6 +87,11 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Loop continuously (restart when source ends)",
     )
+    grab_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="debug mode for logging (default: INFO)",
+    )
     return parser
 
 
@@ -93,6 +99,11 @@ def parse_args() -> Config:
     """Parse command line arguments and return Config."""
     parser = create_parser()
     args = parser.parse_args()
+
+    logging.basicConfig(
+        format="%(asctime)s [%(levelname)s] %(name)s %(message)s",
+        level="DEBUG" if args.debug else "INFO",
+    )
 
     if args.command == "grab":
         return Config.from_args(args)
