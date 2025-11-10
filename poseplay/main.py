@@ -11,6 +11,7 @@ from .lib.yolo_pose_plugin import YOLOPosePlugin
 from .lib.keypoints_save_plugin import KeypointsSavePlugin
 from .lib.svm_anomaly_plugin import SVMAnomalyPlugin
 from .lib.autoencoder_anomaly_plugin import AutoencoderAnomalyPlugin
+from .lib.isolation_forest_anomaly_plugin import IsolationForestAnomalyPlugin
 
 def display_frame(frame, window_name: str = "PosePlay"):
     """Display frame in OpenCV window."""
@@ -48,6 +49,8 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
         svmanomaly = SVMAnomalyPlugin(config.svm)
     if config.autoencoder:
         autoencoder_anomaly = AutoencoderAnomalyPlugin(config.autoencoder)
+    if config.isolation_forest:
+        isolation_forest_anomaly = IsolationForestAnomalyPlugin(config.isolation_forest)
     
     try:
         while running:
@@ -81,6 +84,8 @@ def grab_and_display_loop(config: Config): #, plugin_loader: PluginLoader):
                     processed_frame, anomalies = svmanomaly.process_frame(processed_frame, poses)
                 if config.autoencoder:
                     processed_frame, anomalies = autoencoder_anomaly.process_frame(processed_frame, poses)
+                if config.isolation_forest:
+                    processed_frame, anomalies = isolation_forest_anomaly.process_frame(processed_frame, poses)
                 # for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
                 #     try:
                 #         processed_frame = plugin.process_frame(processed_frame)

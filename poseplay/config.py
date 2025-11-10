@@ -19,6 +19,7 @@ class Config:
         self.plugin_config: Dict[str, Any] = {}
         self.svm: str = ""
         self.autoencoder: str = ""
+        self.isolation_forest: str = ""
 
 
     @classmethod
@@ -34,6 +35,7 @@ class Config:
         config.save = args.save
         config.svm = args.svm
         config.autoencoder = args.autoencoder
+        config.isolation_forest = args.isolation_forest
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -106,6 +108,11 @@ def create_parser() -> argparse.ArgumentParser:
         "--autoencoder",
         default="",
         help="autoencoder model file for pose anomaly detection",
+    )
+    grab_parser.add_argument(
+        "--isolation-forest",
+        default="",
+        help="isolation forest model file for pose anomaly detection",
     )
     return parser
 
