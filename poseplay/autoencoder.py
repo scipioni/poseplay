@@ -113,7 +113,9 @@ class AutoencoderAnomalyDetector:
 
         # Convert to numpy array
         X = np.array(keypoints_data)
-        print(f"Training autoencoder on {X.shape[0]} samples with {X.shape[1]} features")
+        print(
+            f"Training autoencoder on {X.shape[0]} samples with {X.shape[1]} features"
+        )
 
         # Create model if not exists
         if self.model is None:
@@ -148,7 +150,7 @@ class AutoencoderAnomalyDetector:
 
             avg_loss = total_loss / len(dataloader)
             if (epoch + 1) % 10 == 0:
-                print(f"Epoch [{epoch+1}/{self.epochs}], Loss: {avg_loss:.6f}")
+                print(f"Epoch [{epoch + 1}/{self.epochs}], Loss: {avg_loss:.6f}")
 
         # Calculate reconstruction threshold if not provided
         if self.reconstruction_threshold is None:
@@ -165,7 +167,9 @@ class AutoencoderAnomalyDetector:
             errors = torch.mean((X - reconstructed) ** 2, dim=1)
             # Set threshold as mean + 2*std of reconstruction errors
             self.reconstruction_threshold = float(errors.mean() + 2 * errors.std())
-        print(f"Calculated reconstruction threshold: {self.reconstruction_threshold:.6f}")
+        print(
+            f"Calculated reconstruction threshold: {self.reconstruction_threshold:.6f}"
+        )
 
     def detect(self, keypoints: np.ndarray) -> Tuple[bool, float]:
         """
@@ -274,7 +278,9 @@ def load_csv_data(csv_path: str) -> List[np.ndarray]:
         reader = csv.reader(f)
         for row_num, row in enumerate(reader, 1):
             if len(row) != 34:  # 17 keypoints * 2 coordinates
-                print(f"Warning: Skipping row {row_num} - expected 34 values, got {len(row)}")
+                print(
+                    f"Warning: Skipping row {row_num} - expected 34 values, got {len(row)}"
+                )
                 continue
 
             try:
@@ -344,7 +350,9 @@ def train_autoencoder_model(
 
 def main():
     """Command line interface for training autoencoder anomaly detector."""
-    parser = argparse.ArgumentParser(description="Train autoencoder anomaly detection model")
+    parser = argparse.ArgumentParser(
+        description="Train autoencoder anomaly detection model"
+    )
     parser.add_argument(
         "--csv", type=str, required=True, help="Path to CSV training data file"
     )

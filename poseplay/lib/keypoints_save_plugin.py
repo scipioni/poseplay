@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 class KeypointsSavePlugin(Plugin):
     """Plugin that saves detected pose keypoints to a CSV file."""
 
-    def __init__(self, input_file_path: str = "", output_file_path: Optional[str] = None):
+    def __init__(
+        self, input_file_path: str = "", output_file_path: Optional[str] = None
+    ):
         self.input_file_path = input_file_path
         if output_file_path is None:
             # Derive output path from input path, replace extension with .csv
@@ -29,14 +31,13 @@ class KeypointsSavePlugin(Plugin):
 
         self.initialize()
 
-            
     @property
     def metadata(self) -> PluginMetadata:
         return PluginMetadata(
             name="keypoints_save_plugin",
             version="1.0.0",
             description="Plugin to save detected pose keypoints to CSV file",
-            capabilities=["keypoints_saver"]
+            capabilities=["keypoints_saver"],
         )
 
     def initialize(self) -> None:
@@ -47,15 +48,16 @@ class KeypointsSavePlugin(Plugin):
             if output_dir and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            self.csv_file = open(self.output_file_path, 'w', newline='')
+            self.csv_file = open(self.output_file_path, "w", newline="")
             self.csv_writer = csv.writer(self.csv_file)
             # No header row as per spec
-            logger.info(f"Initialized keypoints save plugin, output: {self.output_file_path}")
+            logger.info(
+                f"Initialized keypoints save plugin, output: {self.output_file_path}"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize keypoints save plugin: {e}")
             self.csv_writer = None
             self.csv_file = None
-
 
     def set_output_file_path(self, output_file_path: str) -> None:
         """Set the output file path for saving keypoints."""
@@ -66,15 +68,17 @@ class KeypointsSavePlugin(Plugin):
             if output_dir and not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            self.csv_file = open(self.output_file_path, 'w', newline='')
+            self.csv_file = open(self.output_file_path, "w", newline="")
             self.csv_writer = csv.writer(self.csv_file)
             # No header row as per spec
-            logger.info(f"Initialized keypoints save plugin, output: {self.output_file_path}")
+            logger.info(
+                f"Initialized keypoints save plugin, output: {self.output_file_path}"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize keypoints save plugin: {e}")
             self.csv_writer = None
             self.csv_file = None
-            
+
     def cleanup(self) -> None:
         """Clean up plugin resources by closing the CSV file."""
         if self.csv_file:
@@ -91,19 +95,19 @@ class KeypointsSavePlugin(Plugin):
     def add(self, xy: List[List[Tuple[float, float]]]) -> None:
         """Set keypoints data and save to CSV.
 
-            xy: List of poses, each pose as list of (x, y) coordinates (relative 0-1 to image dimensions)
+        xy: List of poses, each pose as list of (x, y) coordinates (relative 0-1 to image dimensions)
         """
         if self.csv_writer is None:
             logger.warning("CSV writer not initialized, cannot save keypoints")
             return
 
         try:
-            #timestamp = time.time()
-            #for pose in xy:
-                # Flatten the pose coordinates: x1,y1,x2,y2,...
+            # timestamp = time.time()
+            # for pose in xy:
+            # Flatten the pose coordinates: x1,y1,x2,y2,...
             flattened_coords = [coord for pair in xy for coord in pair]
-                #row = [self.frame_number, timestamp] + flattened_coords
-            #print(flattened_coords)
+            # row = [self.frame_number, timestamp] + flattened_coords
+            # print(flattened_coords)
             self.csv_writer.writerow(flattened_coords)
 
             self.frame_number += 1

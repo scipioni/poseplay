@@ -20,7 +20,7 @@ class Config:
         self.svm: str = ""
         self.autoencoder: str = ""
         self.isolation_forest: str = ""
-
+        self.one_class_svm_pose: str = ""
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "Config":
@@ -30,12 +30,13 @@ class Config:
         config.fps = args.fps
         config.max_retries = args.max_retries
         config.loop = args.loop
-        config.plugins_dir = getattr(args, 'plugins_dir', 'plugins')
-        config.enabled_plugins = getattr(args, 'enabled_plugins', [])
+        config.plugins_dir = getattr(args, "plugins_dir", "plugins")
+        config.enabled_plugins = getattr(args, "enabled_plugins", [])
         config.save = args.save
         config.svm = args.svm
         config.autoencoder = args.autoencoder
         config.isolation_forest = args.isolation_forest
+        config.one_class_svm_pose = args.one_class_svm_pose
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -113,6 +114,11 @@ def create_parser() -> argparse.ArgumentParser:
         "--isolation-forest",
         default="",
         help="isolation forest model file for pose anomaly detection",
+    )
+    grab_parser.add_argument(
+        "--one-class-svm-pose",
+        default="",
+        help="one-class SVM pose model file for pose classification",
     )
     return parser
 

@@ -49,7 +49,7 @@ class SVMAnomalyPlugin(Plugin):
             name="svm_anomaly_plugin",
             version="1.0.0",
             description="Plugin for detecting pose anomalies using One-Class SVM",
-            capabilities=["anomaly_detector", "image_processor"]
+            capabilities=["anomaly_detector", "image_processor"],
         )
 
     def initialize(self) -> None:
@@ -59,7 +59,7 @@ class SVMAnomalyPlugin(Plugin):
                 model_path=self.model_path,
                 nu=self.nu,
                 kernel=self.kernel,
-                gamma=self.gamma
+                gamma=self.gamma,
             )
             logger.info("Initialized SVM anomaly detection plugin")
             if self.model_path:
@@ -76,7 +76,9 @@ class SVMAnomalyPlugin(Plugin):
             self.detector = None
             logger.info("Cleaned up SVM anomaly plugin")
 
-    def process_frame(self, frame: np.ndarray, poses: Optional[List] = None) -> Tuple[np.ndarray, Optional[List]]:
+    def process_frame(
+        self, frame: np.ndarray, poses: Optional[List] = None
+    ) -> Tuple[np.ndarray, Optional[List]]:
         """
         Process the frame to detect pose anomalies.
 
@@ -101,7 +103,7 @@ class SVMAnomalyPlugin(Plugin):
 
         for pose in poses:
             # Extract keypoints as flat array
-            xy = np.array(pose["xy"]) #self._extract_keypoints_array(pose)
+            xy = np.array(pose["xy"])  # self._extract_keypoints_array(pose)
             if xy is None:
                 continue
 
@@ -110,9 +112,9 @@ class SVMAnomalyPlugin(Plugin):
 
             # Store result
             result = {
-                'bbox': pose['bbox'],
-                'is_anomaly': is_anomaly,
-                'anomaly_score': float(score),
+                "bbox": pose["bbox"],
+                "is_anomaly": is_anomaly,
+                "anomaly_score": float(score),
                 #'keypoints': keypoints
             }
             anomaly_results.append(result)
@@ -120,7 +122,9 @@ class SVMAnomalyPlugin(Plugin):
             # Log anomaly detection
             if is_anomaly:
                 self.anomaly_count += 1
-                logger.warning(f"Anomaly detected! Score: {score:.4f}, Count: {self.anomaly_count}")
+                logger.warning(
+                    f"Anomaly detected! Score: {score:.4f}, Count: {self.anomaly_count}"
+                )
 
             # Visualize anomaly on frame
             self._visualize_anomaly(frame, result)
@@ -175,9 +179,9 @@ class SVMAnomalyPlugin(Plugin):
             frame: Frame to draw on
             result: Anomaly detection result dictionary
         """
-        bbox = result['bbox']
-        is_anomaly = result['is_anomaly']
-        score = result['anomaly_score']
+        bbox = result["bbox"]
+        is_anomaly = result["is_anomaly"]
+        score = result["anomaly_score"]
 
         x1, y1, x2, y2 = bbox
 
@@ -194,8 +198,15 @@ class SVMAnomalyPlugin(Plugin):
 
         # Add anomaly score text
         text = f"Anomaly: {score:.2f}"
-        cv2.putText(frame, text, (int(x1), int(y1) - 10),
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.putText(
+            frame,
+            text,
+            (int(x1), int(y1) - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            color,
+            2,
+        )
 
     def get_anomaly_stats(self) -> dict:
         """
@@ -205,6 +216,6 @@ class SVMAnomalyPlugin(Plugin):
             Dictionary with anomaly statistics
         """
         return {
-            'total_anomalies': self.anomaly_count,
-            'is_trained': self.detector.is_trained if self.detector else False
+            "total_anomalies": self.anomaly_count,
+            "is_trained": self.detector.is_trained if self.detector else False,
         }

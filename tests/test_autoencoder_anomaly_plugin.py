@@ -20,9 +20,7 @@ class TestAutoencoderAnomalyDetector:
     def test_training(self):
         """Test training with sample data."""
         # Create sample training data
-        keypoints_data = [
-            np.random.rand(34).astype(np.float32) for _ in range(20)
-        ]
+        keypoints_data = [np.random.rand(34).astype(np.float32) for _ in range(20)]
 
         detector = AutoencoderAnomalyDetector(latent_dim=8, epochs=2)
         detector.train(keypoints_data)
@@ -34,9 +32,7 @@ class TestAutoencoderAnomalyDetector:
     def test_detection_normal(self):
         """Test anomaly detection on normal data."""
         # Create training data
-        keypoints_data = [
-            np.random.rand(34).astype(np.float32) for _ in range(20)
-        ]
+        keypoints_data = [np.random.rand(34).astype(np.float32) for _ in range(20)]
 
         detector = AutoencoderAnomalyDetector(latent_dim=8, epochs=2)
         detector.train(keypoints_data)
@@ -60,9 +56,7 @@ class TestAutoencoderAnomalyDetector:
     def test_save_load(self, tmp_path):
         """Test saving and loading model."""
         # Train a model
-        keypoints_data = [
-            np.random.rand(34).astype(np.float32) for _ in range(20)
-        ]
+        keypoints_data = [np.random.rand(34).astype(np.float32) for _ in range(20)]
         detector = AutoencoderAnomalyDetector(latent_dim=8, epochs=2)
         detector.train(keypoints_data)
 
@@ -73,10 +67,16 @@ class TestAutoencoderAnomalyDetector:
         # Load model with same latent dimension
         new_detector = AutoencoderAnomalyDetector(
             model_path=str(model_path),
-            latent_dim=8  # Must match saved model
+            latent_dim=8,  # Must match saved model
         )
         assert new_detector.is_trained
-        assert abs(new_detector.reconstruction_threshold - detector.reconstruction_threshold) < 1e-6
+        assert (
+            abs(
+                new_detector.reconstruction_threshold
+                - detector.reconstruction_threshold
+            )
+            < 1e-6
+        )
 
     def test_invalid_keypoints_shape(self):
         """Test handling of invalid keypoints shape."""
@@ -103,8 +103,9 @@ class TestLoadCsvData:
             row = [str(np.random.rand()) for _ in range(34)]
             data.append(row)
 
-        with open(csv_path, 'w', newline='') as f:
+        with open(csv_path, "w", newline="") as f:
             import csv
+
             writer = csv.writer(f)
             writer.writerows(data)
 
@@ -118,7 +119,7 @@ class TestLoadCsvData:
         csv_path = tmp_path / "invalid.csv"
 
         # Create CSV with wrong number of columns
-        with open(csv_path, 'w', newline='') as f:
+        with open(csv_path, "w", newline="") as f:
             f.write("1,2,3\n")  # Only 3 values, need 34
 
         keypoints = load_csv_data(str(csv_path))
@@ -161,9 +162,7 @@ class TestAutoencoderAnomalyPlugin:
     def test_plugin_process_frame_trained(self):
         """Test processing frame with trained detector."""
         # Create and train detector
-        keypoints_data = [
-            np.random.rand(34).astype(np.float32) for _ in range(20)
-        ]
+        keypoints_data = [np.random.rand(34).astype(np.float32) for _ in range(20)]
         plugin = AutoencoderAnomalyPlugin(latent_dim=8, epochs=2)
         plugin.train_on_data(keypoints_data)
 

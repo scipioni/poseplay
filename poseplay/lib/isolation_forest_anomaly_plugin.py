@@ -56,7 +56,9 @@ class IsolationForestAnomalyDetector:
 
         # Convert to numpy array
         X = np.array(keypoints_data)
-        print(f"Training Isolation Forest on {X.shape[0]} samples with {X.shape[1]} features")
+        print(
+            f"Training Isolation Forest on {X.shape[0]} samples with {X.shape[1]} features"
+        )
 
         # Initialize and train the model
         self.model = IsolationForest(
@@ -190,7 +192,7 @@ class IsolationForestAnomalyPlugin(Plugin):
             name="isolation_forest_anomaly_plugin",
             version="1.0.0",
             description="Plugin for detecting pose anomalies using Isolation Forest",
-            capabilities=["anomaly_detector", "image_processor"]
+            capabilities=["anomaly_detector", "image_processor"],
         )
 
     def initialize(self) -> None:
@@ -217,7 +219,9 @@ class IsolationForestAnomalyPlugin(Plugin):
             self.detector = None
             logger.info("Cleaned up Isolation Forest anomaly plugin")
 
-    def process_frame(self, frame: np.ndarray, poses: Optional[List] = None) -> Tuple[np.ndarray, Optional[List]]:
+    def process_frame(
+        self, frame: np.ndarray, poses: Optional[List] = None
+    ) -> Tuple[np.ndarray, Optional[List]]:
         """
         Process the frame to detect pose anomalies.
 
@@ -231,7 +235,9 @@ class IsolationForestAnomalyPlugin(Plugin):
             - anomaly_results: List of anomaly detection results for each pose
         """
         if self.detector is None or not self.detector.is_trained:
-            logger.warning("Isolation Forest detector not trained, skipping anomaly detection")
+            logger.warning(
+                "Isolation Forest detector not trained, skipping anomaly detection"
+            )
             return frame, None
 
         if poses is None:
@@ -251,16 +257,18 @@ class IsolationForestAnomalyPlugin(Plugin):
 
             # Store result
             result = {
-                'bbox': pose['bbox'],
-                'is_anomaly': is_anomaly,
-                'anomaly_score': float(score),  # anomaly score
+                "bbox": pose["bbox"],
+                "is_anomaly": is_anomaly,
+                "anomaly_score": float(score),  # anomaly score
             }
             anomaly_results.append(result)
 
             # Log anomaly detection
             if is_anomaly:
                 self.anomaly_count += 1
-                logger.warning(f"Anomaly detected! Score: {score:.4f}, Count: {self.anomaly_count}")
+                logger.warning(
+                    f"Anomaly detected! Score: {score:.4f}, Count: {self.anomaly_count}"
+                )
 
             # Visualize anomaly on frame
             self._visualize_anomaly(frame, result)
@@ -275,9 +283,9 @@ class IsolationForestAnomalyPlugin(Plugin):
             frame: Frame to draw on
             result: Anomaly detection result dictionary
         """
-        bbox = result['bbox']
-        is_anomaly = result['is_anomaly']
-        score = result['anomaly_score']
+        bbox = result["bbox"]
+        is_anomaly = result["is_anomaly"]
+        score = result["anomaly_score"]
 
         x1, y1, x2, y2 = bbox
 
@@ -294,8 +302,15 @@ class IsolationForestAnomalyPlugin(Plugin):
 
         # Add anomaly score text
         text = f"Score: {score:.2f}"
-        cv2.putText(frame, text, (int(x1), int(y1) - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.putText(
+            frame,
+            text,
+            (int(x1), int(y1) - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            color,
+            2,
+        )
 
     def get_anomaly_stats(self) -> dict:
         """
@@ -305,9 +320,9 @@ class IsolationForestAnomalyPlugin(Plugin):
             Dictionary with anomaly statistics
         """
         return {
-            'total_anomalies': self.anomaly_count,
-            'is_trained': self.detector.is_trained if self.detector else False,
-            'contamination': self.contamination,
+            "total_anomalies": self.anomaly_count,
+            "is_trained": self.detector.is_trained if self.detector else False,
+            "contamination": self.contamination,
         }
 
     def train_on_data(self, keypoints_data: List[np.ndarray]) -> None:

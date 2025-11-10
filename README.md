@@ -16,6 +16,9 @@ autoencodertrain --csv data/rooms/termica.csv --latent-dim 16 --epochs 100
 # create data/rooms/termica_if.pkl (Isolation Forest model)
 isolationforesttrain --csv data/rooms/termica.csv --n-estimators 100 --contamination 0.1
 
+# create data/rooms/termica_svm_pose.pkl (One-Class SVM Pose model)
+oneclasssvmposetrain --csv data/rooms/termica.csv --nu 0.1 --kernel rbf
+
 # detect anomalies with SVM
 pose grab data/rooms/termica.mkv --svm data/rooms/termica.pkl
 
@@ -24,6 +27,9 @@ pose grab data/rooms/termica.mkv --autoencoder data/rooms/termica.pth
 
 # detect anomalies with Isolation Forest
 pose grab data/rooms/termica.mkv --isolation-forest data/rooms/termica_if.pkl
+
+# detect anomalies with One-Class SVM Pose (feature-based)
+pose grab data/rooms/termica.mkv --one-class-svm-pose data/rooms/termica_svm_pose.pkl
 ```
 
 
@@ -35,7 +41,7 @@ pose grab data/rooms/termica.mkv --isolation-forest data/rooms/termica_if.pkl
 - **Real-time Processing**: Frame-by-frame processing with configurable frame rates
 - **Plugin System**: Extensible plugin architecture for custom image processing
 - **Pose Detection**: YOLO-based human pose estimation with keypoint detection
-- **Anomaly Detection**: SVM-based, autoencoder-based, and Isolation Forest-based pose anomaly detection for fall detection and unusual pose identification
+- **Anomaly Detection**: SVM-based, autoencoder-based, Isolation Forest-based, and One-Class SVM pose classification for fall detection and unusual pose identification
 - **Keypoint Saving**: CSV export of detected pose keypoints for training and analysis
 - **CLI Interface**: Command-line interface for easy integration
 - **Keyboard Controls**: Interactive controls for pause, resume, and reset operations
@@ -98,6 +104,7 @@ python -m poseplay grab rtsp://example.com/stream
 - `--svm PATH`: Path to pre-trained SVM anomaly detection model
 - `--autoencoder PATH`: Path to pre-trained autoencoder anomaly detection model
 - `--isolation-forest PATH`: Path to pre-trained Isolation Forest anomaly detection model
+- `--one-class-svm-pose PATH`: Path to pre-trained One-Class SVM pose classification model
 
 ### Plugins
 
@@ -108,10 +115,11 @@ PosePlay supports extensible plugins for various image processing tasks:
 - **svm_anomaly_plugin**: Uses One-Class SVM to detect anomalous poses in real-time
 - **autoencoder_anomaly_plugin**: Uses autoencoder neural network to detect anomalous poses by reconstruction error
 - **isolation_forest_anomaly_plugin**: Uses Isolation Forest algorithm to detect anomalous poses in high-dimensional keypoint data
+- **one_class_svm_pose_plugin**: Uses One-Class SVM with feature extraction to classify poses into normal/anomalous categories
 
 ### Anomaly Detection
 
-PosePlay supports three anomaly detection approaches: SVM-based, autoencoder-based, and Isolation Forest-based.
+PosePlay supports four anomaly detection approaches: SVM-based, autoencoder-based, Isolation Forest-based, and One-Class SVM pose classification.
 
 #### SVM Anomaly Detection
 
@@ -174,6 +182,28 @@ Isolation Forest Parameters:
 - `--contamination FLOAT`: Expected proportion of outliers in the data (default: 0.1)
 - `--random-state INT`: Random state for reproducibility (default: 42)
 
+#### One-Class SVM Pose Classification
+
+Train a One-Class SVM model with feature extraction for pose classification:
+
+```bash
+# 1. Collect normal pose keypoints (same as other methods)
+python -m poseplay grab video.mp4 --save
+
+# 2. Train One-Class SVM pose model on collected keypoints
+python -m poseplay.lib.one_class_svm_pose_train --csv keypoints.csv --model-path pose_model.pkl --nu 0.1 --kernel rbf
+
+# 3. Use trained model for real-time pose classification
+python -m poseplay grab rtsp://camera/stream --one-class-svm-pose pose_model.pkl
+```
+
+One-Class SVM Pose Parameters:
+- `--nu FLOAT`: Anomaly parameter (0 < nu <= 1, default: 0.1)
+- `--kernel STR`: Kernel type (rbf, linear, poly, sigmoid, default: rbf)
+- `--gamma STR`: Kernel coefficient (scale, auto, or float, default: scale)
+
+This approach differs from the basic SVM anomaly detection by extracting meaningful features (joint angles, limb lengths, body ratios) from pose keypoints before classification, potentially providing better anomaly detection performance.
+
 ### Keyboard Controls
 
 During playback (except RTSP streams):
@@ -205,7 +235,9 @@ poseplay/
     ├── keypoints_save_plugin.py # Keypoints CSV saving plugin
     ├── svm_anomaly_plugin.py    # SVM anomaly detection plugin
     ├── autoencoder_anomaly_plugin.py # Autoencoder anomaly detection plugin
-    └── isolation_forest_anomaly_plugin.py # Isolation Forest anomaly detection plugin
+    ├── isolation_forest_anomaly_plugin.py # Isolation Forest anomaly detection plugin
+    ├── one_class_svm_pose_plugin.py # One-Class SVM pose classification plugin
+    └── one_class_svm_pose_train.py # Training script for One-Class SVM pose plugin
 
 docs/
 └── plugin-development.md # Plugin development guide
@@ -215,7 +247,8 @@ tests/
 ├── test_plugins.py          # Unit tests for plugin system
 ├── test_svm_anomaly_plugin.py # Unit tests for SVM anomaly plugin
 ├── test_autoencoder_anomaly_plugin.py # Unit tests for autoencoder anomaly plugin
-└── test_isolation_forest_anomaly_plugin.py # Unit tests for Isolation Forest anomaly plugin
+├── test_isolation_forest_anomaly_plugin.py # Unit tests for Isolation Forest anomaly plugin
+└── test_one_class_svm_pose_plugin.py # Unit tests for One-Class SVM pose plugin
 ```
 
 ## Contributing

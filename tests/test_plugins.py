@@ -8,10 +8,7 @@ import sys
 
 import numpy as np
 
-from poseplay.plugins import (
-    Plugin, PluginMetadata, PluginRegistry,
-    PluginLoader
-)
+from poseplay.plugins import Plugin, PluginMetadata, PluginRegistry, PluginLoader
 
 
 class TestPluginMetadata(unittest.TestCase):
@@ -23,7 +20,7 @@ class TestPluginMetadata(unittest.TestCase):
             name="test_plugin",
             version="1.0.0",
             description="Test plugin",
-            capabilities=["image_processor"]
+            capabilities=["image_processor"],
         )
 
         self.assertEqual(metadata.name, "test_plugin")
@@ -46,7 +43,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="test_plugin",
             version="1.0.0",
             description="Test plugin",
-            capabilities=["image_processor"]
+            capabilities=["image_processor"],
         )
 
         self.registry.register(plugin)
@@ -60,7 +57,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="test_plugin",
             version="1.0.0",
             description="Test plugin 1",
-            capabilities=["image_processor"]
+            capabilities=["image_processor"],
         )
 
         plugin2 = Mock()
@@ -68,7 +65,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="test_plugin",
             version="2.0.0",
             description="Test plugin 2",
-            capabilities=["image_processor"]
+            capabilities=["image_processor"],
         )
 
         self.registry.register(plugin1)
@@ -82,7 +79,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="plugin1",
             version="1.0.0",
             description="Plugin 1",
-            capabilities=["image_processor"]
+            capabilities=["image_processor"],
         )
 
         plugin2 = Mock()
@@ -90,7 +87,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="plugin2",
             version="1.0.0",
             description="Plugin 2",
-            capabilities=["audio_processor"]
+            capabilities=["audio_processor"],
         )
 
         self.registry.register(plugin1)
@@ -107,7 +104,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="test_plugin",
             version="1.0.0",
             description="Test plugin",
-            capabilities=[]
+            capabilities=[],
         )
 
         self.registry.register(plugin)
@@ -122,7 +119,7 @@ class TestPluginRegistry(unittest.TestCase):
             name="test_plugin",
             version="1.0.0",
             description="Test plugin",
-            capabilities=[]
+            capabilities=[],
         )
 
         self.registry.register(plugin)
@@ -142,6 +139,7 @@ class TestPluginLoader(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir)
 
     def test_discover_plugins_no_directory(self):
@@ -159,7 +157,7 @@ class TestPluginLoader(unittest.TestCase):
         """Test discovering Python plugin files."""
         # Create a dummy plugin file
         plugin_path = os.path.join(self.temp_dir, "test_plugin.py")
-        with open(plugin_path, 'w') as f:
+        with open(plugin_path, "w") as f:
             f.write("# Dummy plugin file")
 
         plugins = self.loader.discover_plugins()
@@ -169,7 +167,7 @@ class TestPluginLoader(unittest.TestCase):
     def test_load_python_plugin(self):
         """Test loading a Python plugin."""
         plugin_path = os.path.join(self.temp_dir, "test_plugin.py")
-        with open(plugin_path, 'w') as f:
+        with open(plugin_path, "w") as f:
             f.write("""
 from poseplay.plugins import Plugin, PluginMetadata
 
@@ -200,7 +198,7 @@ class TestPlugin(Plugin):
     def test_load_invalid_plugin(self):
         """Test loading an invalid plugin file."""
         plugin_path = os.path.join(self.temp_dir, "invalid_plugin.py")
-        with open(plugin_path, 'w') as f:
+        with open(plugin_path, "w") as f:
             f.write("# Invalid plugin - no plugin class")
 
         plugin = self.loader.load_plugin(plugin_path)
@@ -215,11 +213,13 @@ class TestExamplePlugin(unittest.TestCase):
         # Import the example plugin dynamically since it's in the plugins directory
         import sys
         import os
-        plugins_dir = os.path.join(os.path.dirname(__file__), '..', 'plugins')
+
+        plugins_dir = os.path.join(os.path.dirname(__file__), "..", "plugins")
         if plugins_dir not in sys.path:
             sys.path.insert(0, plugins_dir)
 
         from example_plugin import ExamplePlugin
+
         self.plugin = ExamplePlugin()
 
     def test_metadata(self):
@@ -245,7 +245,7 @@ class TestExamplePlugin(unittest.TestCase):
         self.assertIsInstance(result, np.ndarray)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 """Tests for the plugin system."""
 
@@ -257,10 +257,7 @@ import sys
 
 import numpy as np
 
-from poseplay.plugins import (
-    Plugin, PluginMetadata, PluginRegistry,
-    PluginLoader
-)
+from poseplay.plugins import Plugin, PluginMetadata, PluginRegistry, PluginLoader
 
 
 class TestPluginLoaderIntegration(unittest.TestCase):
@@ -274,12 +271,13 @@ class TestPluginLoaderIntegration(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures."""
         import shutil
+
         shutil.rmtree(self.temp_dir)
 
     def test_load_all_plugins_integration(self):
         """Test loading all plugins from directory."""
         # Create a test plugin file
-        plugin_content = '''
+        plugin_content = """
 from poseplay.plugins import Plugin, PluginMetadata
 import numpy as np
 
@@ -301,10 +299,10 @@ class TestIntegrationPlugin(Plugin):
 
     def process_frame(self, frame):
         return frame
-'''
+"""
 
         plugin_path = os.path.join(self.temp_dir, "test_integration_plugin.py")
-        with open(plugin_path, 'w') as f:
+        with open(plugin_path, "w") as f:
             f.write(plugin_content)
 
         # Load all plugins
@@ -319,7 +317,7 @@ class TestIntegrationPlugin(Plugin):
     def test_plugin_initialization_and_cleanup(self):
         """Test that plugins are properly initialized and cleaned up."""
         # Create a test plugin that tracks initialization/cleanup
-        plugin_content = '''
+        plugin_content = """
 from poseplay.plugins import Plugin, PluginMetadata
 import numpy as np
 
@@ -345,10 +343,10 @@ class LifecycleTestPlugin(Plugin):
 
     def process_frame(self, frame):
         return frame
-'''
+"""
 
         plugin_path = os.path.join(self.temp_dir, "lifecycle_test_plugin.py")
-        with open(plugin_path, 'w') as f:
+        with open(plugin_path, "w") as f:
             f.write(plugin_content)
 
         # Load plugins
@@ -368,5 +366,5 @@ class LifecycleTestPlugin(Plugin):
         self.assertTrue(plugin.cleaned_up)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

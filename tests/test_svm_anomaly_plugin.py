@@ -18,14 +18,14 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
         """Set up test fixtures."""
         self.test_keypoints = np.random.rand(34).astype(np.float32)
         self.test_pose = {
-            'bbox': [10, 10, 100, 100],
-            'keypoints': {
-                'nose': {'x': 0.5, 'y': 0.2, 'confidence': 0.9},
-                'left_shoulder': {'x': 0.4, 'y': 0.3, 'confidence': 0.8},
-                'right_shoulder': {'x': 0.6, 'y': 0.3, 'confidence': 0.8},
+            "bbox": [10, 10, 100, 100],
+            "keypoints": {
+                "nose": {"x": 0.5, "y": 0.2, "confidence": 0.9},
+                "left_shoulder": {"x": 0.4, "y": 0.3, "confidence": 0.8},
+                "right_shoulder": {"x": 0.6, "y": 0.3, "confidence": 0.8},
                 # Add more keypoints as needed for testing
             },
-            'confidence': 0.95
+            "confidence": 0.95,
         }
 
     def test_plugin_initialization_without_model(self):
@@ -39,7 +39,7 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
 
     def test_plugin_initialization_with_model(self):
         """Test plugin initialization with a pre-trained model."""
-        with tempfile.NamedTemporaryFile(suffix='.pkl', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as f:
             model_path = f.name
 
         try:
@@ -71,7 +71,7 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
         np.testing.assert_array_equal(result_frame, frame)
         self.assertIsNone(results)
 
-    @patch('poseplay.lib.svm_anomaly_plugin.OneClassSVMAnomalyDetector')
+    @patch("poseplay.lib.svm_anomaly_plugin.OneClassSVMAnomalyDetector")
     def test_process_frame_with_trained_detector(self, mock_detector_class):
         """Test processing frame with trained detector."""
         # Mock the detector
@@ -91,11 +91,11 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
         # Check results structure
         self.assertIsNotNone(results)
         self.assertEqual(len(results), 1)
-        self.assertIn('is_anomaly', results[0])
-        self.assertIn('anomaly_score', results[0])
-        self.assertFalse(results[0]['is_anomaly'])
+        self.assertIn("is_anomaly", results[0])
+        self.assertIn("anomaly_score", results[0])
+        self.assertFalse(results[0]["is_anomaly"])
 
-    @patch('poseplay.lib.svm_anomaly_plugin.OneClassSVMAnomalyDetector')
+    @patch("poseplay.lib.svm_anomaly_plugin.OneClassSVMAnomalyDetector")
     def test_anomaly_detection_and_visualization(self, mock_detector_class):
         """Test anomaly detection and frame visualization."""
         # Mock detector that detects anomaly
@@ -117,10 +117,12 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
         # Check that frame was modified (visualization added) - just check if any pixel changed
         # Since we're drawing on a black frame, any non-black pixels indicate drawing occurred
         has_drawing = np.any(result_frame != 0)
-        self.assertTrue(has_drawing, "Frame should have been modified with anomaly visualization")
+        self.assertTrue(
+            has_drawing, "Frame should have been modified with anomaly visualization"
+        )
         # Check anomaly was detected
-        self.assertTrue(results[0]['is_anomaly'])
-        self.assertEqual(results[0]['anomaly_score'], 0.8)
+        self.assertTrue(results[0]["is_anomaly"])
+        self.assertEqual(results[0]["anomaly_score"], 0.8)
 
     def test_keypoint_extraction(self):
         """Test keypoint extraction from pose dictionary."""
@@ -133,7 +135,7 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
     def test_keypoint_extraction_missing_keypoints(self):
         """Test keypoint extraction with missing keypoints."""
         plugin = SVMAnomalyPlugin()
-        incomplete_pose = {'bbox': [0, 0, 100, 100], 'keypoints': {}}
+        incomplete_pose = {"bbox": [0, 0, 100, 100], "keypoints": {}}
 
         keypoints = plugin._extract_keypoints_array(incomplete_pose)
         self.assertIsNotNone(keypoints)
@@ -146,10 +148,10 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
         plugin = SVMAnomalyPlugin()
         stats = plugin.get_anomaly_stats()
 
-        self.assertIn('total_anomalies', stats)
-        self.assertIn('is_trained', stats)
-        self.assertEqual(stats['total_anomalies'], 0)
-        self.assertFalse(stats['is_trained'])
+        self.assertIn("total_anomalies", stats)
+        self.assertIn("is_trained", stats)
+        self.assertEqual(stats["total_anomalies"], 0)
+        self.assertFalse(stats["is_trained"])
 
     def test_cleanup(self):
         """Test plugin cleanup."""
@@ -160,10 +162,7 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
     def test_configurable_parameters(self):
         """Test configurable SVM parameters."""
         plugin = SVMAnomalyPlugin(
-            nu=0.2,
-            kernel="linear",
-            gamma="auto",
-            anomaly_threshold=0.5
+            nu=0.2, kernel="linear", gamma="auto", anomaly_threshold=0.5
         )
 
         self.assertEqual(plugin.nu, 0.2)
@@ -172,7 +171,7 @@ class TestSVMAnomalyPlugin(unittest.TestCase):
         self.assertEqual(plugin.anomaly_threshold, 0.5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Set up logging for tests
     logging.basicConfig(level=logging.DEBUG)
     unittest.main()

@@ -28,18 +28,32 @@ class YOLOPosePlugin(Plugin):
         13: "left_knee",
         14: "right_knee",
         15: "left_ankle",
-        16: "right_ankle"
+        16: "right_ankle",
     }
 
     # Skeleton connections (pairs of keypoint indices)
     SKELETON = [
-        (0, 1), (0, 2), (1, 3), (2, 4),  # head
-        (5, 6), (5, 7), (7, 9), (6, 8), (8, 10),  # arms
-        (5, 11), (6, 12), (11, 12),  # torso
-        (11, 13), (13, 15), (12, 14), (14, 16)  # legs
+        (0, 1),
+        (0, 2),
+        (1, 3),
+        (2, 4),  # head
+        (5, 6),
+        (5, 7),
+        (7, 9),
+        (6, 8),
+        (8, 10),  # arms
+        (5, 11),
+        (6, 12),
+        (11, 12),  # torso
+        (11, 13),
+        (13, 15),
+        (12, 14),
+        (14, 16),  # legs
     ]
 
-    def __init__(self, confidence_threshold: float = 0.5, model_path: str = "yolo11m-pose.pt"):
+    def __init__(
+        self, confidence_threshold: float = 0.5, model_path: str = "yolo11m-pose.pt"
+    ):
         self.confidence_threshold = confidence_threshold
         self.model_path = model_path
         self.model = None
@@ -52,7 +66,7 @@ class YOLOPosePlugin(Plugin):
             name="yolo_pose_plugin",
             version="1.0.0",
             description="YOLO-based human pose detection plugin that annotates frames with keypoints and skeleton",
-            capabilities=["pose_detector", "image_processor"]
+            capabilities=["pose_detector", "image_processor"],
         )
 
     def initialize(self) -> None:
@@ -113,12 +127,12 @@ class YOLOPosePlugin(Plugin):
             List of pose dictionaries with relative keypoints
         """
         # Convert to numpy arrays if needed
-        if hasattr(boxes, 'xyxy'):
+        if hasattr(boxes, "xyxy"):
             boxes_xyxy = boxes.xyxy.cpu().numpy()
         else:
             boxes_xyxy = boxes
 
-        if hasattr(keypoints, 'xy'):
+        if hasattr(keypoints, "xy"):
             kp_xy = keypoints.xy.cpu().numpy()
             kp_conf = keypoints.conf.cpu().numpy()
         else:
@@ -140,17 +154,25 @@ class YOLOPosePlugin(Plugin):
                 rel_x = (x - x1) / bbox_w if bbox_w > 0 else 0
                 rel_y = (y - y1) / bbox_h if bbox_h > 0 else 0
                 relative_keypoints[self.KEYPOINTS[j]] = {
-                    'x': max(0, min(1, rel_x)),  # Clamp to 0-1
-                    'y': max(0, min(1, rel_y)),
-                    'confidence': conf
+                    "x": max(0, min(1, rel_x)),  # Clamp to 0-1
+                    "y": max(0, min(1, rel_y)),
+                    "confidence": conf,
+                    "order": j,
                 }
 
-            poses.append({
-                'bbox': [float(x1), float(y1), float(x2), float(y2)],
-                'keypoints': relative_keypoints,
-                'confidence': float(box[4]) if len(box) > 4 else 1.0,
-                'xy': [(float(r["x"]), float(r["y"])) for r in relative_keypoints.values()]
-            })
+            poses.append(
+                {
+                    "bbox": [float(x1), float(y1), float(x2), float(y2)],
+                    "keypoints": relative_keypoints,
+                    "confidence": float(box[4]) if len(box) > 4 else 1.0,
+                    "xy": [
+                        (float(r["x"]), float(r["y"]))
+                        for r in sorted(
+                            relative_keypoints.values(), key=lambda x: x["order"]
+                        )
+                    ],
+                }
+            )
 
         return poses
 
@@ -163,17 +185,23 @@ class YOLOPosePlugin(Plugin):
         """
         for pose in poses:
             # Extract bbox
-            x1, y1, x2, y2 = pose['bbox']
+            x1, y1, x2, y2 = pose["bbox"]
 
             # Draw bounding box
             cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (255, 0, 0), 2)
 
             # Draw keypoints and skeleton using relative coordinates
-            self._draw_keypoints_and_skeleton(frame, pose['keypoints'], x1, y1, x2, y2)
+            self._draw_keypoints_and_skeleton(frame, pose["keypoints"], x1, y1, x2, y2)
 
-    def _draw_keypoints_and_skeleton(self, frame: np.ndarray, keypoints: dict,
-                                   bbox_x1: float, bbox_y1: float,
-                                   bbox_x2: float, bbox_y2: float) -> None:
+    def _draw_keypoints_and_skeleton(
+        self,
+        frame: np.ndarray,
+        keypoints: dict,
+        bbox_x1: float,
+        bbox_y1: float,
+        bbox_x2: float,
+        bbox_y2: float,
+    ) -> None:
         """Draw keypoints as circles and skeleton as lines.
 
         Args:
@@ -187,11 +215,11 @@ class YOLOPosePlugin(Plugin):
         # Draw keypoints
         for kp_name, kp_data in keypoints.items():
             # Convert from relative coordinates (0-1 within bbox) to absolute frame coordinates
-            abs_x = int(bbox_x1 + kp_data['x'] * bbox_w)
-            abs_y = int(bbox_y1 + kp_data['y'] * bbox_h)
+            abs_x = int(bbox_x1 + kp_data["x"] * bbox_w)
+            abs_y = int(bbox_y1 + kp_data["y"] * bbox_h)
 
             # Determine color based on confidence
-            if kp_data['confidence'] > 0.5:
+            if kp_data["confidence"] > 0.5:
                 color = (0, 255, 0)  # Green for high confidence
             else:
                 color = (0, 0, 255)  # Red for low confidence
@@ -212,10 +240,10 @@ class YOLOPosePlugin(Plugin):
             end_kp = keypoints[end_name]
 
             # Convert from relative coordinates to absolute frame coordinates
-            start_x = int(bbox_x1 + start_kp['x'] * bbox_w)
-            start_y = int(bbox_y1 + start_kp['y'] * bbox_h)
-            end_x = int(bbox_x1 + end_kp['x'] * bbox_w)
-            end_y = int(bbox_y1 + end_kp['y'] * bbox_h)
+            start_x = int(bbox_x1 + start_kp["x"] * bbox_w)
+            start_y = int(bbox_y1 + start_kp["y"] * bbox_h)
+            end_x = int(bbox_x1 + end_kp["x"] * bbox_w)
+            end_y = int(bbox_y1 + end_kp["y"] * bbox_h)
 
             start_point = (start_x, start_y)
             end_point = (end_x, end_y)

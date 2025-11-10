@@ -52,7 +52,7 @@ class AutoencoderAnomalyPlugin(Plugin):
             name="autoencoder_anomaly_plugin",
             version="1.0.0",
             description="Plugin for detecting pose anomalies using autoencoder reconstruction error",
-            capabilities=["anomaly_detector", "image_processor"]
+            capabilities=["anomaly_detector", "image_processor"],
         )
 
     def initialize(self) -> None:
@@ -81,7 +81,9 @@ class AutoencoderAnomalyPlugin(Plugin):
             self.detector = None
             logger.info("Cleaned up autoencoder anomaly plugin")
 
-    def process_frame(self, frame: np.ndarray, poses: Optional[List] = None) -> Tuple[np.ndarray, Optional[List]]:
+    def process_frame(
+        self, frame: np.ndarray, poses: Optional[List] = None
+    ) -> Tuple[np.ndarray, Optional[List]]:
         """
         Process the frame to detect pose anomalies.
 
@@ -95,7 +97,9 @@ class AutoencoderAnomalyPlugin(Plugin):
             - anomaly_results: List of anomaly detection results for each pose
         """
         if self.detector is None or not self.detector.is_trained:
-            logger.warning("Autoencoder detector not trained, skipping anomaly detection")
+            logger.warning(
+                "Autoencoder detector not trained, skipping anomaly detection"
+            )
             return frame, None
 
         if poses is None:
@@ -115,16 +119,18 @@ class AutoencoderAnomalyPlugin(Plugin):
 
             # Store result
             result = {
-                'bbox': pose['bbox'],
-                'is_anomaly': is_anomaly,
-                'anomaly_score': float(error),  # reconstruction error
+                "bbox": pose["bbox"],
+                "is_anomaly": is_anomaly,
+                "anomaly_score": float(error),  # reconstruction error
             }
             anomaly_results.append(result)
 
             # Log anomaly detection
             if is_anomaly:
                 self.anomaly_count += 1
-                logger.warning(f"Anomaly detected! Reconstruction error: {error:.6f}, Count: {self.anomaly_count}")
+                logger.warning(
+                    f"Anomaly detected! Reconstruction error: {error:.6f}, Count: {self.anomaly_count}"
+                )
 
             # Visualize anomaly on frame
             self._visualize_anomaly(frame, result)
@@ -139,9 +145,9 @@ class AutoencoderAnomalyPlugin(Plugin):
             frame: Frame to draw on
             result: Anomaly detection result dictionary
         """
-        bbox = result['bbox']
-        is_anomaly = result['is_anomaly']
-        error = result['anomaly_score']
+        bbox = result["bbox"]
+        is_anomaly = result["is_anomaly"]
+        error = result["anomaly_score"]
 
         x1, y1, x2, y2 = bbox
 
@@ -158,8 +164,15 @@ class AutoencoderAnomalyPlugin(Plugin):
 
         # Add reconstruction error text
         text = f"Error: {error:.4f}"
-        cv2.putText(frame, text, (int(x1), int(y1) - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        cv2.putText(
+            frame,
+            text,
+            (int(x1), int(y1) - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            color,
+            2,
+        )
 
     def get_anomaly_stats(self) -> dict:
         """
@@ -169,9 +182,11 @@ class AutoencoderAnomalyPlugin(Plugin):
             Dictionary with anomaly statistics
         """
         return {
-            'total_anomalies': self.anomaly_count,
-            'is_trained': self.detector.is_trained if self.detector else False,
-            'reconstruction_threshold': self.detector.reconstruction_threshold if self.detector else None,
+            "total_anomalies": self.anomaly_count,
+            "is_trained": self.detector.is_trained if self.detector else False,
+            "reconstruction_threshold": self.detector.reconstruction_threshold
+            if self.detector
+            else None,
         }
 
     def train_on_data(self, keypoints_data: List[np.ndarray]) -> None:

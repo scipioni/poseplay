@@ -53,7 +53,9 @@ class IsolationForestAnomalyDetector:
 
         # Convert to numpy array
         X = np.array(keypoints_data)
-        print(f"Training Isolation Forest on {X.shape[0]} samples with {X.shape[1]} features")
+        print(
+            f"Training Isolation Forest on {X.shape[0]} samples with {X.shape[1]} features"
+        )
 
         # Initialize and train the model
         self.model = IsolationForest(
@@ -170,7 +172,9 @@ def load_csv_data(csv_path: str) -> List[np.ndarray]:
         reader = csv.reader(f)
         for row_num, row in enumerate(reader, 1):
             if len(row) != 34:  # 17 keypoints * 2 coordinates
-                print(f"Warning: Skipping row {row_num} - expected 34 values, got {len(row)}")
+                print(
+                    f"Warning: Skipping row {row_num} - expected 34 values, got {len(row)}"
+                )
                 continue
 
             try:
@@ -237,7 +241,9 @@ def train_isolation_forest_model(
 
 def main():
     """Command line interface for training Isolation Forest anomaly detector."""
-    parser = argparse.ArgumentParser(description="Train Isolation Forest anomaly detection model")
+    parser = argparse.ArgumentParser(
+        description="Train Isolation Forest anomaly detection model"
+    )
     parser.add_argument(
         "--csv", type=str, required=True, help="Path to CSV training data file"
     )
@@ -248,10 +254,16 @@ def main():
         help="Path to save trained model",
     )
     parser.add_argument(
-        "--n-estimators", type=int, default=100, help="Number of base estimators in the ensemble"
+        "--n-estimators",
+        type=int,
+        default=100,
+        help="Number of base estimators in the ensemble",
     )
     parser.add_argument(
-        "--contamination", type=float, default=0.1, help="Expected proportion of outliers in the data"
+        "--contamination",
+        type=float,
+        default=0.1,
+        help="Expected proportion of outliers in the data",
     )
     parser.add_argument(
         "--random-state", type=int, default=42, help="Random state for reproducibility"

@@ -22,9 +22,7 @@ class TestIsolationForestAnomalyPlugin:
     def test_plugin_initialization_with_params(self):
         """Test plugin initialization with custom parameters."""
         plugin = IsolationForestAnomalyPlugin(
-            n_estimators=50,
-            contamination=0.2,
-            random_state=123
+            n_estimators=50, contamination=0.2, random_state=123
         )
         assert plugin.n_estimators == 50
         assert plugin.contamination == 0.2
@@ -142,7 +140,10 @@ class TestIsolationForestAnomalyPlugin:
 
         # Test with wrong shape
         frame = np.zeros((100, 100, 3), dtype=np.uint8)
-        pose = {"xy": np.random.normal(0, 1, 17), "bbox": [10, 10, 50, 50]}  # Only 17 values
+        pose = {
+            "xy": np.random.normal(0, 1, 17),
+            "bbox": [10, 10, 50, 50],
+        }  # Only 17 values
 
         # Should handle gracefully (skip invalid poses)
         result_frame, results = plugin.process_frame(frame, [pose])

@@ -1,3 +1,4 @@
+<!-- OPENSPEC:REFINE -->
 ### Workflow: OpenSpec Refine Change Proposal
 
 This workflow is designed to update the detailed specifications (spec deltas) and the implementation task list (tasks.md) within an existing OpenSpec change folder after the main proposal.md has been modified.
@@ -13,3 +14,4 @@ This workflow is designed to update the detailed specifications (spec deltas) an
 5. **Confirmation:** Confirm to the user that the specs and tasks have been successfully refined based on the proposal updates.
 
 **Goal:** Synchronize the spec deltas and implementation tasks with the latest version of the change proposal.
+<!-- OPENSPEC:END -->

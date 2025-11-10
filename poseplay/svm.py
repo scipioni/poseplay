@@ -177,8 +177,8 @@ def load_csv_data(csv_path: str, normal_label: int = 0) -> List[np.ndarray]:
                 continue
 
             try:
-                #label = int(row[0])
-                #if label == normal_label:
+                # label = int(row[0])
+                # if label == normal_label:
                 keypoints = np.array([float(x) for x in row])
                 normal_keypoints.append(keypoints)
             except ValueError as e:
@@ -243,7 +243,9 @@ def train_svm_model(
             for kernel in param_grid["kernel"]:
                 for gamma in param_grid["gamma"]:
                     # Create and fit model with current parameters
-                    print(f"Testing parameters: nu={nu}, kernel={kernel}, gamma={gamma}")
+                    print(
+                        f"Testing parameters: nu={nu}, kernel={kernel}, gamma={gamma}"
+                    )
                     model = OneClassSVM(nu=nu, kernel=kernel, gamma=gamma)
                     model.fit(X_scaled)
 
