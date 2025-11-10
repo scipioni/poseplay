@@ -2,6 +2,14 @@
 
 A flexible pose detection application that supports various image input sources including files, directories, videos, and RTSP streams.
 
+
+```
+pose grab data/rooms/termica.mkv --save # --> data/rooms/termica.csv
+svmtrain --csv data/rooms/termica.csv --grid-search # --> data/rooms/termica.pkl
+```
+
+
+
 ## Features
 
 - **Multiple Input Sources**: Support for single images, image directories, video files, and RTSP streams
@@ -46,8 +54,6 @@ python -m poseplay grab rtsp://example.com/stream
 - `--fps FLOAT`: Set frame rate for video processing (default: 30.0)
 - `--max-retries INT`: Maximum retries for RTSP connection failures (default: 3)
 - `--loop`: Loop continuously when source ends (restarts from beginning)
-- `--plugins-dir DIR`: Directory containing plugins (default: plugins)
-- `--enabled-plugins LIST`: List of enabled plugin names (default: all discovered)
 
 ### Keyboard Controls
 
@@ -56,65 +62,6 @@ During playback (except RTSP streams):
 - `p` or `SPACE`: Pause/resume playback
 - `r`: Reset the grabber (restart from beginning)
 
-## Plugin System
-
-PosePlay supports a plugin system for extending functionality with custom image processing. Plugins can add overlays, perform analysis, apply filters, and more.
-
-### Using Plugins
-
-Plugins are automatically loaded from the `plugins/` directory. Create your plugin by following the [Plugin Development Guide](docs/plugin-development.md).
-
-### API Usage
-
-```python
-from poseplay.image_grabber import ImageGrabberFactory
-from poseplay.plugins import PluginLoader
-
-# Create a grabber for any supported source
-grabber = ImageGrabberFactory.create("path/to/source")
-
-# Initialize plugins
-plugin_loader = PluginLoader("plugins")
-plugin_loader.load_all_plugins()
-plugin_loader.registry.initialize_all()
-
-# Process frames with plugins
-while True:
-    frame = grabber.get_frame()
-    if frame is None:
-        break
-
-    # Apply plugins
-    processed_frame = frame
-    for plugin in plugin_loader.registry.get_plugins_by_capability("image_processor"):
-        processed_frame = plugin.process_frame(processed_frame)
-
-    # Use processed_frame here
-
-grabber.close()
-plugin_loader.registry.cleanup_all()
-```
-
-## Supported Formats
-
-### Image Files
-- JPEG (.jpg, .jpeg)
-- PNG (.png)
-- BMP (.bmp)
-- TIFF (.tiff, .tif)
-
-### Video Files
-- MP4 (.mp4)
-- AVI (.avi)
-- MOV (.mov)
-- MKV (.mkv)
-- WMV (.wmv)
-- FLV (.flv)
-
-### RTSP Streams
-- Any valid RTSP URL (rtsp://...)
-
-## Development
 
 ### Running Tests
 
@@ -133,9 +80,6 @@ poseplay/
 ├── plugins.py           # Plugin system implementation
 └── ...
 
-plugins/
-├── example_plugin.py    # Example plugin implementation
-└── plugin_template.py   # Template for creating new plugins
 
 docs/
 └── plugin-development.md # Plugin development guide

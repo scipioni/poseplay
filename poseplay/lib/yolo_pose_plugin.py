@@ -136,14 +136,14 @@ class YOLOPosePlugin(Plugin):
             for j, (x, y) in enumerate(kp):
                 # Get confidence as scalar
                 conf = float(kp_conf[i, j]) if kp_conf is not None else 1.0
-                if conf >= self.confidence_threshold:
-                    rel_x = (x - x1) / bbox_w if bbox_w > 0 else 0
-                    rel_y = (y - y1) / bbox_h if bbox_h > 0 else 0
-                    relative_keypoints[self.KEYPOINTS[j]] = {
-                        'x': max(0, min(1, rel_x)),  # Clamp to 0-1
-                        'y': max(0, min(1, rel_y)),
-                        'confidence': conf
-                    }
+                # if conf >= self.confidence_threshold:
+                rel_x = (x - x1) / bbox_w if bbox_w > 0 else 0
+                rel_y = (y - y1) / bbox_h if bbox_h > 0 else 0
+                relative_keypoints[self.KEYPOINTS[j]] = {
+                    'x': max(0, min(1, rel_x)),  # Clamp to 0-1
+                    'y': max(0, min(1, rel_y)),
+                    'confidence': conf
+                }
 
             poses.append({
                 'bbox': [float(x1), float(y1), float(x2), float(y2)],
