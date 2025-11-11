@@ -52,9 +52,10 @@ class YOLOPosePlugin(Plugin):
     ]
 
     def __init__(
-        self, confidence_threshold: float = 0.5, model_path: str = "yolo11m-pose.pt"
+        self, confidence_threshold: float = 0.5, min_keypoints: int = 0, model_path: str = "yolo11m-pose.pt"
     ):
         self.confidence_threshold = confidence_threshold
+        self.min_keypoints = min_keypoints
         self.model_path = model_path
         self.model = None
         self.current_poses = []
@@ -174,7 +175,7 @@ class YOLOPosePlugin(Plugin):
                 }
             )
 
-        return poses
+        return self._filter_poses(poses)
 
     def _draw_poses(self, frame: np.ndarray, poses: list) -> None:
         """Draw pose keypoints and skeleton on the frame.
@@ -249,3 +250,44 @@ class YOLOPosePlugin(Plugin):
             end_point = (end_x, end_y)
 
             cv2.line(frame, start_point, end_point, (255, 255, 0), 2)
+
+
+    def _filter_poses(self, poses: list) -> list:
+        """Filter poses based on minimum keypoints above confidence threshold and ensure at least one arm and one leg.
+
+        Args:
+            poses: List of pose dictionaries
+            min_keypoints: Minimum number of keypoints required
+            confidence_threshold: Confidence threshold for keypoints
+
+        Returns:
+            Filtered list of poses
+        """
+        if self.min_keypoints <= 0:
+            return poses
+
+        # Define arm and leg keypoint names
+        arm_keypoints = ["left_shoulder", "right_shoulder", "left_elbow", "right_elbow", "left_wrist", "right_wrist"]
+        leg_keypoints = ["left_hip", "right_hip", "left_knee", "right_knee", "left_ankle", "right_ankle"]
+
+        filtered_poses = []
+        for pose in poses:
+            # Count keypoints with confidence > threshold
+            keypoint_count = sum(
+                1 for kp in pose["keypoints"].values()
+                if kp["confidence"] > self.confidence_threshold
+            )
+            if keypoint_count >= self.min_keypoints:
+                # Additional filter: ensure at least one arm and one leg keypoint above threshold
+                has_arm = any(
+                    pose["keypoints"].get(kp_name, {}).get("confidence", 0) > self.confidence_threshold
+                    for kp_name in arm_keypoints
+                )
+                has_leg = any(
+                    pose["keypoints"].get(kp_name, {}).get("confidence", 0) > self.confidence_threshold
+                    for kp_name in leg_keypoints
+                )
+                if has_arm and has_leg:
+                    filtered_poses.append(pose)
+
+        return filtered_poses

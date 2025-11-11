@@ -21,6 +21,8 @@ class Config:
         self.autoencoder: str = ""
         self.isolation_forest: str = ""
         self.one_class_svm_pose: str = ""
+        self.min_keypoints: int = 0
+        self.confidence_threshold: float = 0.5
 
     @classmethod
     def from_args(cls, args: argparse.Namespace) -> "Config":
@@ -37,6 +39,8 @@ class Config:
         config.autoencoder = args.autoencoder
         config.isolation_forest = args.isolation_forest
         config.one_class_svm_pose = args.one_class_svm_pose
+        config.min_keypoints = getattr(args, "min_keypoints", 0)
+        config.confidence_threshold = getattr(args, "confidence_threshold", 0.5)
         return config
 
     def to_grabber_kwargs(self) -> Dict[str, Any]:
@@ -119,6 +123,18 @@ def create_parser() -> argparse.ArgumentParser:
         "--one-class-svm-pose",
         default="",
         help="one-class SVM pose model file for pose classification",
+    )
+    grab_parser.add_argument(
+        "--min-keypoints",
+        type=int,
+        default=10,
+        help="Minimum number of keypoints above confidence threshold to keep pose (default: 10, with 0 no filtering)",
+    )
+    grab_parser.add_argument(
+        "--confidence-threshold",
+        type=float,
+        default=0.5,
+        help="Confidence threshold for pose detection and filtering (default: 0.5)",
     )
     return parser
 

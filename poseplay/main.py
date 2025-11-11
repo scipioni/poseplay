@@ -44,7 +44,7 @@ def grab_and_display_loop(config: Config):  # , plugin_loader: PluginLoader):
         )
     )
 
-    yolopose = YOLOPosePlugin()
+    yolopose = YOLOPosePlugin(confidence_threshold=config.confidence_threshold, min_keypoints=config.min_keypoints)
     if config.save:
         saveplugin = KeypointsSavePlugin(config.source)
     if config.svm:
